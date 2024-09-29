@@ -1,62 +1,63 @@
+import ChatWindow from "@/components/Chatwindow";
 import Navbar from "@/components/Navbar";
-import React from "react";
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
 import prisma from "@/lib/db";
 
 export default async function Home() {
-  const events = await prisma.event.findMany();
+  const schedules = await prisma.schedule.findMany({
+    include: {
+      events: true, // Include related events
+    },
+  });
 
   return (
     <>
       <Navbar />
-      {/* Picker for day, week, month */}
-      <div className="max-w-screen h-40 flex">
-        <h1 className="flex items-center mx-auto text-2xl"> Week </h1>
+      <div className="relative h-screen w-screen bg-white overflow-x-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,#000_70%,transparent_100%)] pointer-events-none overflow-x-hidden"></div>
+        <div className="relative z-10 overflow-x-hidden">
+          <div className="max-w-screen h-40 flex overflow-x-hidden">
+            <h1 className="font-extrabold flex items-center mx-auto text-4xl overflow-x-hidden bg-gradient-to-bl from-[#500000] to-slate-500 bg-clip-text text-transparent">
+              This week
+            </h1>
+          </div>
+          {/* Daily, Weekly, Monthly */}
+          {/* Carousel */}
+          {/* Events */}
+          <div className="max-w-screen h-full overflow-x-hidden">
+            <ul className="px-60">
+              {schedules.map((schedule) => (
+                <ul>
+                  {schedule.events.map((event) => (
+                    <li key={event.id}>
+                      <Card className="h-40 mb-8">
+                        <CardHeader>
+                          <CardTitle>
+                            {event.title} - {event.location}
+                          </CardTitle>
+                          <CardDescription>
+                            {event.date.toString()}
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <p>{event.description}</p>
+                        </CardContent>
+                      </Card>
+                    </li>
+                  ))}
+                </ul>
+              ))}
+            </ul>
+          </div>
+        </div>
       </div>
-      {/* Daily, Weekly, Monthly */}
-      {/* Carousel */}
-      <Carousel>
-        <CarouselContent>
-          <CarouselItem>
-            {/* Events */}
-            <div className="max-w-screenh-full">
-              <ul className="px-60">
-                {events.map((event) => (
-                  <Card className="h-40 mb-8">
-                    <CardHeader>
-                      <CardTitle>
-                        {event.title} - {event.location}
-                      </CardTitle>
-                      <CardDescription>{event.date.toString()}</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <p>{event.description}</p>
-                    </CardContent>
-                  </Card>
-                ))}
-              </ul>
-            </div>
-          </CarouselItem>
-          <CarouselItem>...</CarouselItem>
-          <CarouselItem>...</CarouselItem>
-        </CarouselContent>
-        <CarouselPrevious />
-        <CarouselNext />
-      </Carousel>
+      <ChatWindow />
     </>
   );
 }
